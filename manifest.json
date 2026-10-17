@@ -1,0 +1,10 @@
+{
+  "type": "preload-native",
+  "name": "Kao MB Shader Bridge (Diagnostic)",
+  "author": "Kao",
+  "version": "0.1.0",
+  "entry": "libkao_mb_shader_bridge.so",
+  "minecraft_versions": [],
+  "overwrite_files": [],
+  "overwrite_folders": []
+}
