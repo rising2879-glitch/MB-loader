@@ -1,65 +1,54 @@
 name: Build Levi Native Mod
 
-'on': workflow_dispatch
+on:
+  workflow_dispatch:
 
 permissions:
-contents: read
+  contents: read
 
 jobs:
-build:
-runs-on: ubuntu-22.04
-steps:
-- name: Checkout source
-uses: actions/checkout@v4
-with:
-submodules: recursive
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
 
-  - name: Set up Java 17
-    uses: actions/setup-java@v5
-    with:
-      distribution: temurin
-      java-version: '17'
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
 
-  - name: Set up Android SDK
-    uses: android-actions/setup-android@v3
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
 
-  - name: Install Android SDK packages
-    shell: bash
-    run: |
-      set -euo pipefail
-      sdkmanager --licenses
-      sdkmanager \
-        "platform-tools" \
-        "platforms;android-35" \
-        "ndk;28.2.13676358" \
-        "cmake;3.22.1"
+      - name: Install Android packages
+        run: |
+          sdkmanager --licenses
+          sdkmanager "platforms;android-35" "ndk;28.2.13676358" "cmake;3.22.1"
 
-  - name: Install Ninja
-    run: |
-      set -euo pipefail
-      sudo apt-get update
-      sudo apt-get install -y ninja-build
+      - name: Install Ninja
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build
 
-  - name: Configure ARM64 build
-    shell: bash
-    run: |
-      set -euo pipefail
-      cmake -S . -B build -G Ninja \
-        -DCMAKE_TOOLCHAIN_FILE="$ANDROID_HOME/ndk/28.2.13676358/build/cmake/android.toolchain.cmake" \
-        -DANDROID_ABI=arm64-v8a \
-        -DANDROID_PLATFORM=android-28 \
-        -DANDROID_STL=c++_shared
+      - name: Configure build
+        run: |
+          cmake -S . -B build -G Ninja \
+            -DCMAKE_TOOLCHAIN_FILE="$ANDROID_HOME/ndk/28.2.13676358/build/cmake/android.toolchain.cmake" \
+            -DANDROID_ABI=arm64-v8a \
+            -DANDROID_PLATFORM=android-28 \
+            -DANDROID_STL=c++_shared
 
-  - name: Build Levi package
-    shell: bash
-    run: |
-      set -euo pipefail
-      cmake --build build --target package_levipack --parallel 2
-      test -s build/dist/KaoMBShaderBridge.levipack
+      - name: Build package
+        run: |
+          set -e
+          cmake --build build --target package_levipack --parallel 2
+          test -s build/dist/KaoMBShaderBridge.levipack
 
-  - name: Upload Levi package
-    uses: actions/upload-artifact@v4
-    with:
-      name: KaoMBShaderBridge-levipack
-      path: build/dist/KaoMBShaderBridge.levipack
-      if-no-files-found: error
+      - name: Upload package
+        uses: actions/upload-artifact@v4
+        with:
+          name: KaoMBShaderBridge-levipack
+          path: build/dist/KaoMBShaderBridge.levipack
+          if-no-files-found: error
