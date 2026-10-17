@@ -1,8 +1,10 @@
-name: Workflow Syntax Test
+name: Workflow Test
+
+'on': workflow_dispatch
 
 jobs:
 test:
-runs-on: ubuntu-22.04
+runs-on: ubuntu-latest
 steps:
 - name: Check workflow
 run: echo "Workflow syntax is valid"
