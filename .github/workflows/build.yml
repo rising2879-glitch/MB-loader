@@ -1,6 +1,6 @@
 name: Build Levi Native Mod
 
-on:
+'on':
 push:
 branches:
 - main
@@ -24,18 +24,16 @@ steps:
     uses: actions/setup-java@v5
     with:
       distribution: temurin
-      java-version: "17"
+      java-version: '17'
 
   - name: Set up Android SDK
     uses: android-actions/setup-android@v3
-    with:
-      accept-android-sdk-licenses: true
-      log-accepted-android-sdk-licenses: true
 
   - name: Install Android SDK packages
     shell: bash
     run: |
       set -euo pipefail
+      sdkmanager --licenses
       sdkmanager \
         "platform-tools" \
         "platforms;android-35" \
@@ -77,13 +75,10 @@ steps:
     run: |
       set -euo pipefail
       cmake --build build --target package_levipack --parallel 2
-
       test -s build/dist/KaoMBShaderBridge.levipack
-
       SO_PATH="$(find build -type f -name 'libkao_mb_shader_bridge.so' -print -quit)"
       test -n "$SO_PATH"
       test -s "$SO_PATH"
-
       echo "Native library: $SO_PATH"
       echo "Levi package: build/dist/KaoMBShaderBridge.levipack"
 
